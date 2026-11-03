@@ -5,7 +5,7 @@ import re
 import json
 from pprint import pformat
 from functools import reduce, lru_cache
-import collections
+import collections.abc
 import urllib
 import urllib.request
 import logging
@@ -68,11 +68,11 @@ def update_dict_subkeys(d, u):
     {'a': 1, 'b': [2, 777, {'i': 9}], 'c': {'d': 999, 'e': 5, 'f': {'g': 7}}, 'h': 8}
     """
     for k, v in u.items():
-        if isinstance(v, collections.Mapping):
+        if isinstance(v, collections.abc.Mapping):
             # Recursively merge subdicts
             r = update_dict_subkeys(d.get(k, {}), v)
             d[k] = r
-        elif isinstance(v, collections.Iterable) and not isinstance(v, str):
+        elif isinstance(v, collections.abc.Iterable) and not isinstance(v, str):
             # Join lists
             dk = d.setdefault(k, [])
             dk += v
@@ -100,9 +100,9 @@ def replace_template_variables(data, flat_parent_replacements={}):
     for k, v in data.items():
         if isinstance(v, str):
             data[k] = _replace_template(v)
-        elif isinstance(v, collections.Mapping):
+        elif isinstance(v, collections.abc.Mapping):
             replace_template_variables(v, data_chain)
-        elif isinstance(v, collections.Iterable) and not isinstance(v, str):
+        elif isinstance(v, collections.abc.Iterable) and not isinstance(v, str):
             v[:] = list(map(lambda i: _replace_template(i), v))
         #else:
         #    raise Exception('unknown type')
@@ -182,7 +182,7 @@ def _load_data_from_source(source):
 
     with resolve_opener(source) as filehandle:
         data = INPUT_FORMATS[ext](filehandle)
-        assert isinstance(data, collections.Mapping), f'Top Level of data must be a dict - {source}'
+        assert isinstance(data, collections.abc.Mapping), f'Top Level of data must be a dict - {source}'
         return data
 
 
